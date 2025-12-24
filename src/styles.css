@@ -1,0 +1,580 @@
+:root {
+  --White: #ffffff;
+  --Black: #000000;
+  --Grey950: #08070b;
+  --Grey900: #14131b;
+  --Grey850: #18171f;
+  --Grey800: #24232c;
+  --Grey700: #54535b;
+  --Grey600: #817d92;
+  --Grey200: #e6e5ea;
+  --Green: #a4ffaf;
+  --Yellow: #f8cd65;
+  --Orange: #fb7c58;
+  --Red: #f64a4a;
+}
+
+/* CSS Reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default list styles */
+ol,
+ul {
+  list-style: none;
+}
+
+/* Ensure images are responsive and don't exceed their container */
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+/* Remove default anchor styles */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Reset buttons to avoid inconsistent styling */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  border: none;
+  background: none;
+  appearance: none;
+}
+
+/* Ensure form elements don't overflow */
+input,
+textarea {
+  width: 100%;
+}
+
+/* Remove default table spacing */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Set base font and line height */
+html {
+  font-size: 100%;
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%; /* Prevent iOS font scaling */
+  scroll-behavior: smooth;
+}
+
+/* Remove default focus outlines for better accessibility control */
+:focus {
+  outline: none;
+}
+
+/* Ensure body takes up at least full viewport height */
+body {
+  min-height: 100vh;
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--Grey950);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Typography */
+.text-preset-1 {
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 2.625rem;
+  letter-spacing: 0;
+}
+.text-preset-2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 2rem;
+  letter-spacing: 0;
+}
+.text-preset-3 {
+  font-size: 1.125rem;
+  font-weight: bold;
+  line-height: 1.5rem;
+  letter-spacing: 0;
+}
+.text-preset-4 {
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1.25rem;
+  letter-spacing: 0;
+}
+
+/* General Styles */
+.main-container,
+.section-card,
+.save-info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.main-container {
+  width: 21.4375rem;
+}
+
+.title-text {
+  color: var(--Grey600);
+  text-align: center;
+}
+
+/* Password display container */
+.password-display-container,
+.password-generate-container,
+.save-info-container {
+  background-color: var(--Grey800);
+  width: 100%;
+}
+
+.password-display {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.password-display-text {
+  color: var(--Grey200);
+  width: 12.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.password-display-text::-webkit-scrollbar-thumb:hover {
+  display: none;
+}
+
+.placeholder {
+  color: var(--Grey600);
+}
+
+.copied-text {
+  align-self: center;
+  color: var(--Green);
+}
+
+.hidden {
+  display: none;
+}
+
+.copy-btn {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.copy-btn:hover {
+  color: var(--Green);
+}
+
+.copy-btn:disabled {
+  color: var(--Grey600);
+  cursor: not-allowed;
+}
+
+.copy-btn:disabled .copy {
+  filter: grayscale(100%) brightness(0.7);
+}
+
+.copy-btn:disabled:hover {
+  color: var(--Grey600);
+}
+
+.generate-content-container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.character-count-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.input-label-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.label-text {
+  color: var(--Grey200);
+}
+
+.count-text {
+  color: var(--Green);
+}
+
+.pw-input {
+  background-color: var(--Grey200);
+  padding: 0.5rem;
+}
+
+.pw-input-label {
+  color: var(--White);
+}
+
+/* Range slider styling */
+
+input[type='range'] {
+  appearance: none;
+  width: 100%;
+  height: 0.5rem;
+  background: var(--Grey800);
+  outline: none;
+  transition: background 0.3s ease;
+}
+
+/* Thumb styling */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.75rem;
+  width: 1.75rem;
+  border-radius: 50%;
+  background: var(--Grey200);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  background: var(--Grey900);
+  outline: 0.125rem solid var(--Green);
+  outline-offset: -0.125rem;
+}
+
+input[type='range']::-moz-range-thumb {
+  height: 1.75rem;
+  width: 1.75rem;
+  border-radius: 50%;
+  background: var(--Grey200);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+input[type='range']::-moz-range-thumb:hover {
+  background: var(--Grey900);
+  outline: 0.125rem solid var(--Green);
+  outline-offset: -0.125rem;
+}
+
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  outline: 0.125rem solid var(--Green);
+  outline-offset: -0.125rem;
+}
+
+/* Checkbox style */
+
+input[type='checkbox'] {
+  display: none;
+}
+
+.checkbox {
+  position: relative;
+  padding-left: 2.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 0.125rem solid var(--Grey200);
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+input[type='checkbox']:checked + .checkbox::after {
+  border: 0.125rem solid var(--Green); /*changes border color when checked*/
+  background-color: var(--Green); /*changes background color when checked*/
+  background-image: url(./images/icon-check.svg); /* adds checkmark icon */
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/*Generate password container*/
+.generate-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.strength-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--Grey850);
+  padding: 1rem;
+}
+
+.strength-text {
+  color: var(--Grey600);
+  text-transform: uppercase;
+}
+
+.strength-bar-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.strength-level-text {
+  color: white;
+  margin-right: 0.5rem;
+  align-self: center;
+}
+
+.strength-bar {
+  width: 0.625rem;
+  height: 1.75rem;
+  border: 0.125rem solid var(--Grey200);
+}
+
+.bar-filled-red {
+  background-color: var(--Red);
+  border: none;
+}
+
+.bar-filled-orange {
+  background-color: var(--Orange);
+  border: none;
+}
+
+.bar-filled-yellow {
+  background-color: var(--Yellow);
+  border: none;
+}
+
+.bar-filled-green {
+  background-color: var(--Green);
+  border: none;
+}
+.buttons-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.generate-btn,
+.save-form-button {
+  width: 45%;
+  padding: 1rem;
+  background-color: var(--Green);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+}
+
+.generate-btn:hover,
+.save-form-button:hover {
+  background-color: transparent;
+  outline: 0.125rem solid var(--Green);
+  color: var(--Green);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .arrow {
+    filter: invert(82%) sepia(41%) saturate(341%) hue-rotate(70deg)
+      brightness(101%) contrast(106%);
+  }
+}
+
+.form-content-container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.view-pw-container {
+  display: flex;
+  justify-content: center;
+}
+
+.view-pw-button {
+  color: var(--Green);
+  text-transform: uppercase;
+}
+
+.view-pw-button:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* When the overlay has the "hidden" helper-class it should be hidden;
+   keep this rule after .modal-overlay to ensure it wins. */
+.modal-overlay.hidden {
+  display: none !important;
+}
+
+.save-info-card {
+  position: relative;
+  background-color: var(--Grey800);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  width: 80%;
+  max-width: 400px;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1.5rem;
+  color: var(--Grey200);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.success-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--Green);
+}
+
+/* Ensure the success message respects the hidden helper class so it doesn't
+   show accidentally when other rules re-enable display. */
+.success-message.hidden {
+  display: none !important;
+}
+
+/* Saved Passwords Styles */
+.saved-item {
+  background-color: var(--Grey800);
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.saved-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.saved-name {
+  color: var(--Grey200);
+  flex: 1;
+}
+
+.saved-password {
+  color: var(--Grey200);
+  margin: 0 1rem;
+}
+
+.toggle-show-btn {
+  color: var(--Green);
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+.copy-saved-btn {
+  cursor: pointer;
+}
+
+.copy-saved-btn:hover {
+  color: var(--Green);
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+  .main-container {
+    width: 33.75rem;
+    gap: 2rem;
+  }
+
+  .title-text {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .password-display-text {
+    font-size: 2rem;
+    line-height: 2.625rem;
+    width: 25rem;
+  }
+
+  .label-text {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+  }
+
+  .input-label-container {
+    margin-bottom: 2rem;
+  }
+
+  .strength-indicator {
+    padding: 1.5rem;
+  }
+
+  .generate-container {
+    gap: 2rem;
+  }
+
+  .generate-content-container {
+    padding: 2rem;
+  }
+
+  .generate-btn {
+    padding: 1.5rem;
+    font-size: 1.125rem;
+  }
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Brian J Meinert" />
+    <meta
+      name="decription"
+      content="A simple password generator solution for Frontend Mentor challenge."
+    />
+    <title>Password Generator</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="main-container">
+      <h1 class="text-preset-4 title-text">Password Generator</h1>
+      <section class="section-card js-generator-section">
+        <article class="password-display-container">
+          <div class="password-display">
+            <span
+              class="js-password-input password-display-text text-preset-2 placeholder"
+              >P4$5W0rD!</span
+            >
+            <span class="text-preset-4 copied-text hidden js-copied-text"
+              >copied</span
+            >
+            <button class="copy-btn js-copy-btn">
+              <img
+                src="./images/icon-copy.svg"
+                alt="Copy Password"
+                class="copy"
+              />
+            </button>
+          </div>
+        </article>
+        <article class="password-generate-container">
+          <div class="generate-content-container">
+            <div class="character-count-container">
+              <div class="input-label-container">
+                <label for="character-count" class="text-preset-4 label-text"
+                  >Character Length</label
+                >
+                <p class="text-preset-2 count-text js-count-number">10</p>
+              </div>
+              <input
+                type="range"
+                class="js-range-slider"
+                id="customRange"
+                min="6"
+                max="20"
+                value="10"
+                style="
+                  background: linear-gradient(
+                    to right,
+                    rgb(164, 255, 175) 0%,
+                    rgb(164, 255, 175) 0%,
+                    rgb(24, 23, 31) 0%,
+                    rgb(24, 23, 31) 100%
+                  );
+                "
+              />
+            </div>
+            <div class="parameter-container">
+              <ul class="js-checkbox-container">
+                <li>
+                  <input
+                    type="checkbox"
+                    id="uppercase"
+                    class="js-checkbox-input"
+                    checked
+                  />
+                  <label
+                    for="uppercase"
+                    class="text-preset-4 label-text checkbox js-checkbox"
+                    >Include Uppercase Letters</label
+                  >
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    id="lowercase"
+                    class="js-checkbox-input"
+                    checked
+                  />
+                  <label
+                    for="lowercase"
+                    class="text-preset-4 label-text checkbox js-checkbox"
+                    >Include Lowercase Letters</label
+                  >
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    id="numbers"
+                    class="js-checkbox-input"
+                  />
+                  <label
+                    for="numbers"
+                    class="text-preset-4 label-text checkbox js-checkbox"
+                    >Include Numbers</label
+                  >
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    id="symbols"
+                    class="js-checkbox-input"
+                  />
+                  <label
+                    for="symbols"
+                    class="text-preset-4 label-text checkbox js-checkbox"
+                    >Include Symbols</label
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="generate-container">
+              <div class="strength-container">
+                <div class="strength-indicator js-strength-container">
+                  <h2 class="text-preset-4 strength-text">Strength</h2>
+                  <div class="strength-bar-container">
+                    <span
+                      class="js-strength-level text-preset-3 strength-level-text"
+                    ></span>
+                    <div class="strength-bar js-strength-bar"></div>
+                    <div class="strength-bar js-strength-bar"></div>
+                    <div class="strength-bar js-strength-bar"></div>
+                    <div class="strength-bar js-strength-bar"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="buttons-container">
+                <button class="generate-btn text-preset-4 js-generate-btn">
+                  Generate
+                  <img
+                    src="./images/icon-arrow-right.svg"
+                    alt="arrow"
+                    class="arrow"
+                  />
+                </button>
+                <button class="generate-btn text-preset-4 js-save-btn" disabled>
+                  Save
+                </button>
+              </div>
+            </div>
+            <div class="view-pw-container">
+              <button class="view-pw-button js-view-pw-btn">
+                view passwords
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+      <section class="section-card js-saved-section hidden">
+        <h2 class="text-preset-3 title-text">Saved Passwords</h2>
+        <ul class="js-saved-list"></ul>
+        <div class="view-pw-container">
+          <button class="view-pw-button js-back-btn">back to generator</button>
+        </div>
+      </section>
+      <div class="modal-overlay js-modal-overlay hidden">
+        <section class="save-info-card js-save-modal">
+          <button class="modal-close-btn js-modal-close">&times;</button>
+          <article class="save-info-container">
+            <form class="form-content-container js-save-form">
+              <label for="password-name" class="pw-input-label"
+                >Password Profile Name</label
+              >
+              <input
+                type="text"
+                id="password-name"
+                name="password-name"
+                placeholder="name"
+                class="pw-input"
+                required
+              />
+              <button type="submit" class="save-form-button">save</button>
+            </form>
+            <div class="success-message js-success-message hidden">
+              <p>Saved successfully!</p>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+    <script src="./main.js" defer></script>
+  </body>
+</html>
