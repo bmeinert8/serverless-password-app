@@ -1,12 +1,11 @@
 const { DefaultAzureCredential } = require('@azure/identity');
 const { SecretClient } = require('@azure/keyvault-secrets');
 
-// The URL of your vault from the Portal (e.g., https://my-vault.vault.azure.net/)
 const vaultUrl = process.env.KEY_VAULT_URL;
-
 const credential = new DefaultAzureCredential();
 const client = new SecretClient(vaultUrl, credential);
 
+// Tool 1: Get any secret by name (Good for the Master PIN Hash)
 async function getSecret(secretName) {
   try {
     const secret = await client.getSecret(secretName);
@@ -17,4 +16,19 @@ async function getSecret(secretName) {
   }
 }
 
-module.exports = { getSecret };
+// Tool 2: Get the connection string (Smart logic for Local vs Cloud)
+async function getTableConnectionString() {
+  // ELI5: If we are on your computer, use the "Local Note" (local.settings.json)
+  if (process.env.VaultStorageConnection) {
+    return process.env.VaultStorageConnection;
+  }
+
+  // ELI5: If we are in the Cloud, knock on the Vault's door
+  return await getSecret('TableStorageConnectionString');
+}
+
+// Export both so the "Login Guard" can use them
+module.exports = {
+  getSecret,
+  getTableConnectionString,
+};
