@@ -2,6 +2,9 @@ const { DefaultAzureCredential } = require('@azure/identity');
 const { SecretClient } = require('@azure/keyvault-secrets');
 
 const vaultUrl = process.env.KEY_VAULT_URL;
+
+console.log("--- DEBUG: KEY VAULT SETUP ---");
+console.log("Vault URL found:", vaultUrl);
 const credential = new DefaultAzureCredential();
 const client = new SecretClient(vaultUrl, credential);
 
