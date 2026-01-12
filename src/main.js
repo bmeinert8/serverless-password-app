@@ -47,6 +47,39 @@ const characterSets = [
 // Local storage key
 const STORAGE_KEY = 'savedPasswords';
 
+// Login logic
+const loginSection = document.querySelector('.js-login-section');
+const loginBtn = document.querySelector('.js-login-btn');
+const pinInput = document.getElementById('master-pin');
+const loginError = document.querySelector('.js-login-error');
+
+// login button event
+loginBtn.addEventListener('click', async () => {
+  const pin = pinInput.value;
+
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pin }),
+    });
+
+    const data = await response.json();
+
+    if (data.authenticated) {
+      // Success! Hide login, show the app
+      loginSection.classList.add('hidden');
+      generatorSection.classList.remove('hidden');
+    } else {
+      // Fail! Show error message
+      loginError.classList.remove('hidden');
+    }
+  } catch (err) {
+    console.error('Login Error:', err);
+    alert('Could not connect to the security vault.');
+  }
+});
+
 // Load saved passwords from localStorage
 let savedPasswords = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 

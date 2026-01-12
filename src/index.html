@@ -20,7 +20,34 @@
   <body>
     <main class="main-container">
       <h1 class="text-preset-4 title-text">Password Generator</h1>
-      <section class="section-card js-generator-section">
+      <section class="section-card js-login-section">
+        <div class="generate-content-container">
+          <h2 class="text-preset-3 title-text">Vault Locked</h2>
+          <div class="character-count-container">
+            <label for="master-pin" class="text-preset-4 label-text"
+              >Enter Master PIN</label
+            >
+            <input
+              type="password"
+              id="master-pin"
+              class="pw-input"
+              placeholder="****"
+              maxlength="4"
+              style="margin-top: 1rem; text-align: center; font-size: 2rem"
+            />
+          </div>
+          <button class="generate-btn text-preset-4 js-login-btn">
+            Unlock Vault
+          </button>
+          <p
+            class="js-login-error text-preset-4 hidden"
+            style="color: var(--Red); text-align: center"
+          >
+            Invalid PIN
+          </p>
+        </div>
+      </section>
+      <section class="section-card js-generator-section hidden">
         <article class="password-display-container">
           <div class="password-display">
             <span
