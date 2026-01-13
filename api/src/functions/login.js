@@ -7,43 +7,49 @@ app.http('login', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     try {
-      // 1. Get the PIN from the user's request
       const body = await request.json();
       const userPin = body.pin;
 
       if (!userPin) {
-        return { status: 400, body: 'PIN is required.' };
+        return {
+          status: 400,
+          body: JSON.stringify({ error: 'PIN is required' }),
+        };
       }
 
-      // 2. Turn the user's PIN into a hash (The meat grinder)
       const userHash = crypto
         .createHash('sha256')
         .update(userPin)
         .digest('hex');
 
-      // 3. Get the "Official Hash" from the Vault
+      // This line is the likely 500 error culprit
       const officialHash = await getSecret('MasterPINHash');
 
-      // 4. Compare them
       if (userHash === officialHash) {
-        context.log('Login successful!');
         return {
           status: 200,
-          body: JSON.stringify({ message: 'Success!', authenticated: true }),
+          body: JSON.stringify({ authenticated: true }),
         };
       } else {
-        context.log('Login failed: Incorrect PIN.');
         return {
           status: 401,
           body: JSON.stringify({
-            message: 'Invalid PIN',
             authenticated: false,
+            message: 'Invalid PIN',
           }),
         };
       }
     } catch (error) {
-      context.error('Error during login:', error);
-      return { status: 500, body: 'An internal error occurred.' };
+      // This sends the SPECIFIC error (like "Access Denied") back to your browser
+      return {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: 'BACKEND_CRASH',
+          message: error.message,
+          stack: error.stack,
+        }),
+      };
     }
   },
 });
