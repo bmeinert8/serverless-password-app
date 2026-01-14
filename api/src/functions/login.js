@@ -1,5 +1,8 @@
-const { app } = require('@azure/functions');
 const crypto = require('crypto');
+if (!global.crypto) {
+  global.crypto = crypto;
+}
+const { app } = require('@azure/functions');
 const { getSecret } = require('../services/vaultService');
 
 app.http('login', {
