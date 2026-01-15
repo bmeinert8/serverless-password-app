@@ -2,7 +2,7 @@ const { app } = require('@azure/functions');
 const { TableClient } = require('@azure/data-tables');
 
 // Get the connection string from the environment variables
-const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const connectionString = process.env.VaultStorageConnection;
 
 app.http('savePassword', {
   methods: ['POST'],
