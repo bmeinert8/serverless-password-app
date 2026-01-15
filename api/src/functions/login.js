@@ -1,58 +1,52 @@
-const crypto = require('crypto');
-if (!global.crypto) {
-  global.crypto = crypto;
-}
 const { app } = require('@azure/functions');
+const crypto = require('crypto');
 const { getSecret } = require('../services/vaultService');
 
 app.http('login', {
-  methods: ['POST'],
-  authLevel: 'anonymous',
-  handler: async (request, context) => {
-    try {
-      const body = await request.json();
-      const userPin = body.pin;
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    handler: async (request, context) => {
+        try {
+            const body = await request.json();
+            const userPin = body.pin;
 
-      if (!userPin) {
-        return {
-          status: 400,
-          body: JSON.stringify({ error: 'PIN is required' }),
-        };
-      }
+            if (!userPin) {
+                return { status: 400, body: JSON.stringify({ error: "PIN is required" }) };
+            }
 
-      const userHash = crypto
-        .createHash('sha256')
-        .update(userPin)
-        .digest('hex');
+            const userHash = crypto.createHash('sha256').update(userPin).digest('hex');
+            const officialHash = await getSecret('MasterPINHash');
 
-      // This line is the likely 500 error culprit
-      const officialHash = await getSecret('MasterPINHash');
+            if (userHash === officialHash) {
+                return { 
+                    status: 200, 
+                    body: JSON.stringify({ authenticated: true }) 
+                };
+            } else {
+                // DEBUGGING BLOCK: This tells us what the server is actually seeing
+                return { 
+                    status: 401, 
+                    body: JSON.stringify({ 
+                        authenticated: false, 
+                        message: "Invalid PIN",
+                        debug_info: {
+                            user_sent_hash: userHash,
+                            server_stored_length: officialHash ? officialHash.length : 0,
+                            // Show first 10 chars to see if it's a Hash or the "@Microsoft" string
+                            server_stored_preview: officialHash ? officialHash.substring(0, 10) : "UNDEFINED"
+                        }
+                    }) 
+                };
+            }
 
-      if (userHash === officialHash) {
-        return {
-          status: 200,
-          body: JSON.stringify({ authenticated: true }),
-        };
-      } else {
-        return {
-          status: 401,
-          body: JSON.stringify({
-            authenticated: false,
-            message: 'Invalid PIN',
-          }),
-        };
-      }
-    } catch (error) {
-      // This sends the SPECIFIC error (like "Access Denied") back to your browser
-      return {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: 'BACKEND_CRASH',
-          message: error.message,
-          stack: error.stack,
-        }),
-      };
+        } catch (error) {
+            return { 
+                status: 500, 
+                body: JSON.stringify({ 
+                    error: "BACKEND_CRASH", 
+                    message: error.message 
+                }) 
+            };
+        }
     }
-  },
 });
