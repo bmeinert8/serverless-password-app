@@ -1,37 +1,31 @@
-const { DefaultAzureCredential } = require('@azure/identity');
+const { ManagedIdentityCredential } = require('@azure/identity');
 const { SecretClient } = require('@azure/keyvault-secrets');
 
 const vaultUrl = process.env.KEY_VAULT_URL;
 
-console.log("--- DEBUG: KEY VAULT SETUP ---");
-console.log("Vault URL found:", vaultUrl);
-const credential = new DefaultAzureCredential();
+// DEBUG: Print the Vault URL to the logs so we know the variable is working
+console.log('--- VAULT SERVICE INIT ---');
+console.log('Target Vault:', vaultUrl);
+
+// ELI5: We use ManagedIdentityCredential directly because we know we are in Azure.
+// This skips checking for VS Code, CLI, etc., which speeds up the login.
+const credential = new ManagedIdentityCredential();
+
 const client = new SecretClient(vaultUrl, credential);
 
-// Tool 1: Get any secret by name (Good for the Master PIN Hash)
 async function getSecret(secretName) {
   try {
+    if (!vaultUrl) {
+      throw new Error('KEY_VAULT_URL environment variable is missing.');
+    }
+    console.log(`Fetching secret: ${secretName}...`);
     const secret = await client.getSecret(secretName);
+    console.log('Secret fetched successfully.');
     return secret.value;
   } catch (error) {
-    console.error(`Failed to fetch secret ${secretName}:`, error);
+    console.error(`Failed to fetch secret ${secretName}:`, error.message);
     throw error;
   }
 }
 
-// Tool 2: Get the connection string (Smart logic for Local vs Cloud)
-async function getTableConnectionString() {
-  // ELI5: If we are on your computer, use the "Local Note" (local.settings.json)
-  if (process.env.VaultStorageConnection) {
-    return process.env.VaultStorageConnection;
-  }
-
-  // ELI5: If we are in the Cloud, knock on the Vault's door
-  return await getSecret('TableStorageConnectionString');
-}
-
-// Export both so the "Login Guard" can use them
-module.exports = {
-  getSecret,
-  getTableConnectionString,
-};
+module.exports = { getSecret };
