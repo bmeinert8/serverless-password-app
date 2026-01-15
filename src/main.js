@@ -180,38 +180,75 @@ modalOverlay.addEventListener('click', (e) => {
 });
 
 // Handle save form submit
-saveForm.addEventListener('submit', (e) => {
+// Handle save form submit
+saveForm.addEventListener('submit', async (e) => {
+  // Changed to async
   e.preventDefault();
+
   const nameInput = document.getElementById('password-name');
   const name = nameInput.value.trim();
+
   if (!name) {
     alert('Please enter a profile name!');
     return;
   }
+
   const password = passwordInput.textContent;
 
-  // Save to localStorage
-  savedPasswords.push({ name, password });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPasswords));
+  // UI Feedback: Change button text so user knows it's working
+  const submitBtn = saveForm.querySelector('button[type="submit"]');
+  const originalBtnText = submitBtn.innerText;
+  submitBtn.innerText = 'Saving to Cloud...';
+  submitBtn.disabled = true;
 
-  // Show success
-  saveForm.classList.add('hidden');
-  successMessage.classList.remove('hidden');
+  try {
+    // --- CONNECTING TO AZURE BACKEND ---
+    const response = await fetch('/api/savePassword', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        website: name, // We send 'name' as 'website' for the RowKey
+        password: password,
+        username: '', // Your HTML doesn't have a username field yet, so we send empty
+      }),
+    });
 
-  // Hide success after 5s and close modal
-  setTimeout(() => {
-    closeModal();
-    renderSavedPasswords();
-  }, 5000);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to save');
+    }
 
-  // Reset input
-  nameInput.value = '';
+    // --- SUCCESS STATE ---
+    // Hide form, show success message
+    saveForm.classList.add('hidden');
+    successMessage.classList.remove('hidden');
 
-  // Reset the displayed password to placeholder so user must generate a new one
-  passwordInput.textContent = DEFAULT_PLACEHOLDER;
-  passwordInput.classList.add('placeholder');
-  toggleCopyButton();
-  toggleSaveButton();
+    // Reset the input
+    nameInput.value = '';
+
+    // Reset the main generator display
+    passwordInput.textContent = DEFAULT_PLACEHOLDER;
+    passwordInput.classList.add('placeholder');
+    toggleCopyButton();
+    toggleSaveButton();
+
+    // Close modal after 2 seconds
+    setTimeout(() => {
+      closeModal();
+      // NOTE: renderSavedPasswords() will still show old local data
+      // until we build the "Get Passwords" API next!
+    }, 2000);
+  } catch (error) {
+    console.error('Save Error:', error);
+    alert('Error saving to Vault: ' + error.message);
+    // Keep form open so they can try again
+    saveForm.classList.remove('hidden');
+    successMessage.classList.add('hidden');
+  } finally {
+    // Reset button state
+    submitBtn.innerText = originalBtnText;
+    submitBtn.disabled = false;
+  }
 });
 
 // Enable/disable Save button based on whether a real password is present
