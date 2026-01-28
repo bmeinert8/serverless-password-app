@@ -365,13 +365,15 @@ function closeModal() {
   successMessage.classList.add('hidden');
 }
 
-// Render saved passwords list
+// Render saved passwords list from Azure
 async function renderSavedPasswords() {
   const savedList = document.querySelector('.js-saved-list');
 
-  // 1. Show Loading State
-  savedList.innerHTML =
-    '<li class="saved-item" style="justify-content:center; color: var(--Neon-Green);">Loading Vault...</li>';
+  // 1. Show Loading State (only if list is empty to avoid flickering)
+  if (savedPasswords.length === 0) {
+    savedList.innerHTML =
+      '<li class="saved-item" style="justify-content:center; color: var(--Neon-Green);">Loading Vault...</li>';
+  }
 
   try {
     // 2. Fetch from the Cloud
@@ -381,61 +383,100 @@ async function renderSavedPasswords() {
       throw new Error('Failed to load vault');
     }
 
-    // 3. Update the global data variable
     savedPasswords = await response.json();
-
-    // 4. Clear loading message
     savedList.innerHTML = '';
 
-    // Handle Empty State
     if (savedPasswords.length === 0) {
       savedList.innerHTML =
         '<li class="saved-item" style="justify-content:center; color: var(--Grey);">No passwords saved yet.</li>';
       return;
     }
 
-    // 5. Render the List (Same logic as before, just using cloud data)
-    savedPasswords.forEach((item, index) => {
+    // 3. Render the List
+    savedPasswords.forEach((item) => {
       const li = document.createElement('li');
       li.classList.add('saved-item');
+
+      // I added a "delete-btn" class to the new button
       li.innerHTML = `
         <div class="saved-display">
           <span class="saved-name text-preset-4">${item.name}</span>
           <span class="saved-password text-preset-2" data-hidden="true">••••••••</span>
           <div class="saved-controls">
-             <button class="toggle-show-btn">Show</button>
-             <button class="copy-saved-btn">
-               <img src="./images/icon-copy.svg" alt="Copy Password" class="copy" />
+             <button class="toggle-show-btn" title="Show/Hide">Show</button>
+             <button class="copy-saved-btn" title="Copy to Clipboard">
+               <img src="./images/icon-copy.svg" alt="Copy" class="copy" />
+             </button>
+             <button class="delete-btn" title="Delete Password" style="margin-left: 0.5rem; background: transparent; border: none; cursor: pointer;">
+               🗑️
              </button>
           </div>
         </div>
       `;
       savedList.appendChild(li);
 
-      // Toggle show/hide
+      // --- EVENT LISTENERS ---
+
+      // 1. Show/Hide Logic
       const toggleBtn = li.querySelector('.toggle-show-btn');
       const pwSpan = li.querySelector('.saved-password');
-
       toggleBtn.addEventListener('click', () => {
         const isHidden = pwSpan.dataset.hidden === 'true';
-        // We use the item from the fresh cloud data
         pwSpan.textContent = isHidden ? item.password : '••••••••';
         pwSpan.dataset.hidden = isHidden ? 'false' : 'true';
         toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
       });
 
-      // Copy
+      // 2. Copy Logic
       const copyBtn = li.querySelector('.copy-saved-btn');
       copyBtn.addEventListener('click', () => {
-        navigator.clipboard
-          .writeText(item.password)
-          .then(() => {
-            // Optional: flash the button or show a toast
-            const img = copyBtn.querySelector('img');
-            img.style.opacity = '0.5';
-            setTimeout(() => (img.style.opacity = '1'), 200);
-          })
-          .catch((err) => console.error('Copy failed', err));
+        navigator.clipboard.writeText(item.password);
+        // Visual feedback
+        const img = copyBtn.querySelector('img');
+        img.style.opacity = '0.5';
+        setTimeout(() => (img.style.opacity = '1'), 200);
+      });
+
+      // 3. DELETE LOGIC (New!)
+      const deleteBtn = li.querySelector('.delete-btn');
+      deleteBtn.addEventListener('click', async () => {
+        if (
+          confirm(
+            `Are you sure you want to delete the password for ${item.name}?`
+          )
+        ) {
+          // UI Feedback: Turn the text red/faded while deleting
+          li.style.opacity = '0.5';
+
+          try {
+            const delResponse = await fetch('/api/deletePassword', {
+              method: 'DELETE', // Or POST, our API accepts both
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ website: item.name }),
+            });
+
+            if (delResponse.ok) {
+              // Success! Remove from screen immediately
+              li.remove();
+              // Also remove from local array so it doesn't come back on a re-render
+              savedPasswords = savedPasswords.filter(
+                (p) => p.name !== item.name
+              );
+
+              if (savedPasswords.length === 0) {
+                savedList.innerHTML =
+                  '<li class="saved-item" style="justify-content:center; color: var(--Grey);">No passwords saved yet.</li>';
+              }
+            } else {
+              alert('Failed to delete. Please try again.');
+              li.style.opacity = '1'; // Reset
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Error connecting to server.');
+            li.style.opacity = '1';
+          }
+        }
       });
     });
   } catch (error) {
