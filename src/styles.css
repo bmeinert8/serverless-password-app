@@ -545,12 +545,12 @@ li {
 /* Description Text */
 .modal-description {
   margin-bottom: 1.5rem;
-  color: var(--Grey);
+  color: var(--Grey600);
 }
 
 /* Highlighted Password Name */
 .modal-highlight-text {
-  color: var(--White);
+  color: var(--Green);
   font-weight: bold;
 }
 
@@ -565,16 +565,16 @@ li {
 /* Button Variant: Ghost (Cancel) */
 .btn-ghost {
   background: transparent;
-  color: var(--Grey);
-  border: 1px solid var(--Grey);
+  color: var(--Grey600);
+  border: 1px solid var(--Grey600);
   width: auto; /* Overrides default full width */
   padding: 0 1.5rem;
 }
 
 .btn-ghost:hover {
-  background: var(--Grey);
-  color: var(--Almost-White);
-  border-color: var(--Grey);
+  background: var(--Grey700);
+  color: var(--Grey200);
+  border-color: var(--Grey200);
 }
 
 /* Button Variant: Danger (Delete) */
@@ -603,14 +603,14 @@ li {
 }
 
 .delete-option-label {
-  color: var(--Grey);
+  color: var(--Grey200);
   font-size: 0.9rem;
   user-select: none;
   transition: color 0.3s ease;
 }
 
 .delete-option-row:hover .delete-option-label {
-  color: var(--Neon-Green);
+  color: var(--Green);
 }
 
 /* Checkbox Base */
@@ -629,8 +629,8 @@ li {
 
 /* Checkbox State: Checked */
 .custom-checkbox:checked {
-  border-color: var(--Neon-Green);
-  background-color: var(--Neon-Green);
+  border-color: var(--Green);
+  background-color: var(--Green);
 }
 
 /* Checkbox Icon (Hidden by default) */
@@ -638,7 +638,7 @@ li {
   content: '';
   width: 0.75rem;
   height: 0.75rem;
-  background-color: var(--Dark-Grey);
+  background-color: var(--Grey950);
   transform: scale(0);
   transition: 120ms transform ease-in-out;
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
