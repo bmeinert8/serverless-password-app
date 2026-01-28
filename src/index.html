@@ -218,75 +218,29 @@
       <div class="modal-overlay js-delete-modal-overlay hidden">
         <section class="save-info-card js-delete-modal">
           <article class="save-info-container">
-            <h3
-              class="text-preset-3"
-              style="color: var(--Red); margin-bottom: 1rem"
-            >
-              Delete Password?
-            </h3>
-            <p
-              class="text-preset-4"
-              style="margin-bottom: 1.5rem; color: var(--Grey)"
-            >
+            <h3 class="text-preset-3 modal-title-danger">Delete Password?</h3>
+
+            <p class="text-preset-4 modal-description">
               Are you sure you want to delete the password for
-              <span
-                class="js-delete-target-name"
-                style="color: var(--White); font-weight: bold"
-              ></span
-              >?
+              <span class="js-delete-target-name modal-highlight-text"></span>?
             </p>
 
-            <div
-              style="
-                margin-bottom: 1.5rem;
-                display: flex;
-                align-items: center;
-                gap: 0.8rem;
-                cursor: pointer;
-              "
-            >
+            <label class="delete-option-row">
               <input
                 type="checkbox"
                 id="dont-ask-again"
-                class="js-dont-ask-checkbox"
-                style="
-                  accent-color: var(--Neon-Green);
-                  width: 1.2rem;
-                  height: 1.2rem;
-                  cursor: pointer;
-                "
+                class="js-dont-ask-checkbox custom-checkbox"
               />
-              <label
-                for="dont-ask-again"
-                class="text-preset-4"
-                style="font-size: 0.9rem; cursor: pointer"
-                >Don't ask me again</label
+              <span class="text-preset-4 delete-option-label"
+                >Don't show this again</span
               >
-            </div>
+            </label>
 
-            <div style="display: flex; gap: 1rem; justify-content: flex-end">
-              <button
-                class="view-pw-button js-cancel-delete"
-                style="
-                  background: transparent;
-                  color: var(--Grey);
-                  border: 1px solid var(--Grey);
-                  width: auto;
-                  padding: 0 1.5rem;
-                "
-              >
+            <div class="modal-actions">
+              <button class="view-pw-button btn-ghost js-cancel-delete">
                 Cancel
               </button>
-              <button
-                class="view-pw-button js-confirm-delete"
-                style="
-                  background: var(--Red);
-                  color: var(--White);
-                  border: none;
-                  width: auto;
-                  padding: 0 1.5rem;
-                "
-              >
+              <button class="view-pw-button btn-danger js-confirm-delete">
                 Delete
               </button>
             </div>
