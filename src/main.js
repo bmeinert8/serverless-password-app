@@ -53,6 +53,91 @@ const loginBtn = document.querySelector('.js-login-btn');
 const pinInput = document.getElementById('master-pin');
 const loginError = document.querySelector('.js-login-error');
 
+// --- DELETE MODAL ELEMENTS ---
+const deleteOverlay = document.querySelector('.js-delete-modal-overlay');
+const deleteTargetName = document.querySelector('.js-delete-target-name');
+const confirmDeleteBtn = document.querySelector('.js-confirm-delete');
+const cancelDeleteBtn = document.querySelector('.js-cancel-delete');
+const dontAskCheckbox = document.querySelector('.js-dont-ask-checkbox');
+
+// We use a global variable to hold the item currently being considered for deletion
+let itemToDelete = null;
+
+// Handle "Confirm Delete" Click
+confirmDeleteBtn.addEventListener('click', async () => {
+  if (!itemToDelete) return;
+
+  // 1. Save Preference if checked
+  if (dontAskCheckbox.checked) {
+    localStorage.setItem('skipDeleteConfirmation', 'true');
+  }
+
+  // 2. Perform the Delete
+  await executeDelete(itemToDelete);
+
+  // 3. Cleanup
+  closeDeleteModal();
+});
+
+// Handle "Cancel" Click
+cancelDeleteBtn.addEventListener('click', () => {
+  closeDeleteModal();
+  itemToDelete = null;
+});
+
+function closeDeleteModal() {
+  deleteOverlay.classList.add('hidden');
+  // Reset checkbox for next time (optional, but good UX to default to unchecked unless saved)
+  if (!localStorage.getItem('skipDeleteConfirmation')) {
+    dontAskCheckbox.checked = false;
+  }
+}
+
+// Helper: The actual API Call (Separated so we can call it from two places)
+async function executeDelete(item) {
+  // UI Feedback: Find the specific row to fade it out
+  // (This is a quick way to find it by text content)
+  const allRows = document.querySelectorAll('.saved-item');
+  let targetRow = null;
+  allRows.forEach((row) => {
+    if (row.querySelector('.saved-name').textContent === item.name) {
+      targetRow = row;
+    }
+  });
+
+  if (targetRow) targetRow.style.opacity = '0.5';
+
+  try {
+    const delResponse = await fetch('/api/deletePassword', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ website: item.name }),
+    });
+
+    if (delResponse.ok) {
+      // Success!
+      if (targetRow) targetRow.remove();
+
+      // Update local data
+      savedPasswords = savedPasswords.filter((p) => p.name !== item.name);
+
+      // Check empty state
+      const savedList = document.querySelector('.js-saved-list');
+      if (savedPasswords.length === 0) {
+        savedList.innerHTML =
+          '<li class="saved-item" style="justify-content:center; color: var(--Grey);">No passwords saved yet.</li>';
+      }
+    } else {
+      alert('Failed to delete. Please try again.');
+      if (targetRow) targetRow.style.opacity = '1';
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error connecting to server.');
+    if (targetRow) targetRow.style.opacity = '1';
+  }
+}
+
 // login button event
 loginBtn.addEventListener('click', async () => {
   const pin = pinInput.value;
@@ -365,23 +450,18 @@ function closeModal() {
   successMessage.classList.add('hidden');
 }
 
-// Render saved passwords list from Azure
+// --- UPDATED RENDER FUNCTION ---
 async function renderSavedPasswords() {
   const savedList = document.querySelector('.js-saved-list');
 
-  // 1. Show Loading State (only if list is empty to avoid flickering)
   if (savedPasswords.length === 0) {
     savedList.innerHTML =
       '<li class="saved-item" style="justify-content:center; color: var(--Neon-Green);">Loading Vault...</li>';
   }
 
   try {
-    // 2. Fetch from the Cloud
     const response = await fetch('/api/getPasswords');
-
-    if (!response.ok) {
-      throw new Error('Failed to load vault');
-    }
+    if (!response.ok) throw new Error('Failed to load vault');
 
     savedPasswords = await response.json();
     savedList.innerHTML = '';
@@ -392,12 +472,10 @@ async function renderSavedPasswords() {
       return;
     }
 
-    // 3. Render the List
     savedPasswords.forEach((item) => {
       const li = document.createElement('li');
       li.classList.add('saved-item');
 
-      // I added a "delete-btn" class to the new button
       li.innerHTML = `
         <div class="saved-display">
           <span class="saved-name text-preset-4">${item.name}</span>
@@ -415,9 +493,7 @@ async function renderSavedPasswords() {
       `;
       savedList.appendChild(li);
 
-      // --- EVENT LISTENERS ---
-
-      // 1. Show/Hide Logic
+      // Show/Hide Logic
       const toggleBtn = li.querySelector('.toggle-show-btn');
       const pwSpan = li.querySelector('.saved-password');
       toggleBtn.addEventListener('click', () => {
@@ -427,55 +503,30 @@ async function renderSavedPasswords() {
         toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
       });
 
-      // 2. Copy Logic
+      // Copy Logic
       const copyBtn = li.querySelector('.copy-saved-btn');
       copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(item.password);
-        // Visual feedback
         const img = copyBtn.querySelector('img');
         img.style.opacity = '0.5';
         setTimeout(() => (img.style.opacity = '1'), 200);
       });
 
-      // 3. DELETE LOGIC (New!)
+      // --- NEW DELETE LOGIC ---
       const deleteBtn = li.querySelector('.delete-btn');
-      deleteBtn.addEventListener('click', async () => {
-        if (
-          confirm(
-            `Are you sure you want to delete the password for ${item.name}?`
-          )
-        ) {
-          // UI Feedback: Turn the text red/faded while deleting
-          li.style.opacity = '0.5';
+      deleteBtn.addEventListener('click', () => {
+        // 1. Check User Preference
+        const skipConfirm =
+          localStorage.getItem('skipDeleteConfirmation') === 'true';
 
-          try {
-            const delResponse = await fetch('/api/deletePassword', {
-              method: 'DELETE', // Or POST, our API accepts both
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ website: item.name }),
-            });
-
-            if (delResponse.ok) {
-              // Success! Remove from screen immediately
-              li.remove();
-              // Also remove from local array so it doesn't come back on a re-render
-              savedPasswords = savedPasswords.filter(
-                (p) => p.name !== item.name
-              );
-
-              if (savedPasswords.length === 0) {
-                savedList.innerHTML =
-                  '<li class="saved-item" style="justify-content:center; color: var(--Grey);">No passwords saved yet.</li>';
-              }
-            } else {
-              alert('Failed to delete. Please try again.');
-              li.style.opacity = '1'; // Reset
-            }
-          } catch (err) {
-            console.error(err);
-            alert('Error connecting to server.');
-            li.style.opacity = '1';
-          }
+        if (skipConfirm) {
+          // User said "Don't ask me again", so delete immediately
+          executeDelete(item);
+        } else {
+          // Show the custom modal
+          itemToDelete = item; // Store item in global var so confirm btn knows what to delete
+          deleteTargetName.textContent = item.name;
+          deleteOverlay.classList.remove('hidden');
         }
       });
     });
