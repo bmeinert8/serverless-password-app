@@ -603,34 +603,34 @@ li {
 }
 
 .delete-option-label {
-  color: var(--Grey200);
+  color: var(--Grey);
   font-size: 0.9rem;
   user-select: none;
   transition: color 0.3s ease;
 }
 
 .delete-option-row:hover .delete-option-label {
-  color: var(--Green);
+  color: var(--Neon-Green);
 }
 
-/* Checkbox Base */
+/* Checkbox Base - Updated to force visibility */
 .custom-checkbox {
   appearance: none;
   -webkit-appearance: none;
   width: 1.25rem;
   height: 1.25rem;
-  border: 2px solid var(--Almost-White);
+  border: 2px solid var(--Almost-White); /* Ensure this variable exists! */
   background-color: transparent;
   cursor: pointer;
-  display: grid;
+  display: inline-grid !important; /* Forces the box to show */
   place-content: center;
-  transition: all 0.2s ease;
+  margin: 0; /* Reset margins */
 }
 
 /* Checkbox State: Checked */
 .custom-checkbox:checked {
-  border-color: var(--Green);
-  background-color: var(--Green);
+  border-color: var(--Neon-Green);
+  background-color: var(--Neon-Green);
 }
 
 /* Checkbox Icon (Hidden by default) */
@@ -638,10 +638,11 @@ li {
   content: '';
   width: 0.75rem;
   height: 0.75rem;
-  background-color: var(--Grey950);
+  background-color: var(--Dark-Grey);
   transform: scale(0);
   transition: 120ms transform ease-in-out;
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  box-shadow: none; /* Removes any conflicting shadows */
 }
 
 /* Checkbox Icon: Shown */
