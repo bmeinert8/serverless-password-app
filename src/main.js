@@ -247,9 +247,21 @@ saveButton.addEventListener('click', () => {
     alert('Generate a password first!');
     return;
   }
+
   modalOverlay.classList.remove('hidden');
   saveForm.classList.remove('hidden');
   successMessage.classList.add('hidden');
+
+  // --- NEW: Pre-fill if Editing ---
+  const nameInput = document.getElementById('password-name');
+  if (editingTargetName) {
+    nameInput.value = editingTargetName;
+    // Optional: Make it read-only so they don't accidentally rename (creating a duplicate)
+    // nameInput.readOnly = true;
+  } else {
+    nameInput.value = '';
+    // nameInput.readOnly = false;
+  }
 });
 
 // Handle modal close
@@ -316,6 +328,12 @@ saveForm.addEventListener('submit', async (e) => {
     passwordInput.classList.add('placeholder');
     toggleCopyButton();
     toggleSaveButton();
+
+    // Reset edit state
+    editingTargetName = null;
+    const title = document.querySelector('.title-text');
+    title.textContent = 'Password Generator'; // Reset title
+    title.style.color = ''; // Reset color
 
     // Close modal after 2 seconds
     setTimeout(() => {
@@ -450,10 +468,14 @@ function closeModal() {
   successMessage.classList.add('hidden');
 }
 
-// --- UPDATED RENDER FUNCTION ---
+// --- STATE VARIABLES ---
+let editingTargetName = null; // Tracks if we are editing an existing site
+
+// --- RENDER FUNCTION ---
 async function renderSavedPasswords() {
   const savedList = document.querySelector('.js-saved-list');
 
+  // Loading State
   if (savedPasswords.length === 0) {
     savedList.innerHTML =
       '<li class="saved-item" style="justify-content:center; color: var(--Neon-Green);">Loading Vault...</li>';
@@ -482,8 +504,8 @@ async function renderSavedPasswords() {
           <span class="saved-password text-preset-2" data-hidden="true">••••••••</span>
           <div class="saved-controls">
              <button class="toggle-show-btn" title="Show/Hide">Show</button>
-             <button class="copy-saved-btn" title="Copy to Clipboard">
-               <img src="./images/icon-copy.svg" alt="Copy" class="copy" />
+             <button class="edit-btn" title="Edit Password" style="margin-left: 0.5rem; background: transparent; border: none; cursor: pointer;">
+                ✏️
              </button>
              <button class="delete-btn" title="Delete Password" style="margin-left: 0.5rem; background: transparent; border: none; cursor: pointer;">
                🗑️
@@ -493,7 +515,7 @@ async function renderSavedPasswords() {
       `;
       savedList.appendChild(li);
 
-      // Show/Hide Logic
+      // 1. Show/Hide Logic
       const toggleBtn = li.querySelector('.toggle-show-btn');
       const pwSpan = li.querySelector('.saved-password');
       toggleBtn.addEventListener('click', () => {
@@ -503,28 +525,43 @@ async function renderSavedPasswords() {
         toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
       });
 
-      // Copy Logic
-      const copyBtn = li.querySelector('.copy-saved-btn');
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(item.password);
-        const img = copyBtn.querySelector('img');
-        img.style.opacity = '0.5';
-        setTimeout(() => (img.style.opacity = '1'), 200);
+      // 2. EDIT LOGIC (New!)
+      const editBtn = li.querySelector('.edit-btn');
+      editBtn.addEventListener('click', () => {
+        // A. Switch to Generator View
+        savedSection.classList.add('hidden');
+        generatorSection.classList.remove('hidden');
+
+        // B. Load Data into Generator
+        passwordInput.textContent = item.password;
+        passwordInput.classList.remove('placeholder');
+
+        // C. Set "Edit Mode" State
+        editingTargetName = item.name;
+
+        // D. Visual Feedback: Update the Title or Button to show we are editing
+        const title = document.querySelector('.title-text');
+        title.textContent = `Editing: ${item.name}`;
+        title.style.color = 'var(--Neon-Green)';
+
+        // E. Recalculate strength for the loaded password
+        // (Optional simplification: just set slider to length of loaded pw)
+        characterSlider.value = item.password.length;
+        characterCount.textContent = item.password.length;
+        updateSliderFill(item.password.length);
+
+        toggleSaveButton();
       });
 
-      // --- NEW DELETE LOGIC ---
+      // 3. Delete Logic (Existing)
       const deleteBtn = li.querySelector('.delete-btn');
       deleteBtn.addEventListener('click', () => {
-        // 1. Check User Preference
         const skipConfirm =
           localStorage.getItem('skipDeleteConfirmation') === 'true';
-
         if (skipConfirm) {
-          // User said "Don't ask me again", so delete immediately
           executeDelete(item);
         } else {
-          // Show the custom modal
-          itemToDelete = item; // Store item in global var so confirm btn knows what to delete
+          itemToDelete = item;
           deleteTargetName.textContent = item.name;
           deleteOverlay.classList.remove('hidden');
         }
