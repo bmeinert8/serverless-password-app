@@ -14,46 +14,6 @@ param appName string = 'pwvault-app-${uniqueString(resourceGroup().id)}'
 
 // RESOURCES
 
-// resource group
-resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
-  name: 'pwvault-containergroup'
-  location: location
-  properties: {
-    containers: [
-      {
-        name: 'containername'
-        properties: {
-          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'
-          ports: [
-            {
-              port: 443
-            }
-          ]
-          resources: {
-            requests: {
-              cpu: 3
-              memoryInGB: 16
-            }
-          }
-        }
-      }
-    ]
-    restartPolicy: 'OnFailure'
-    osType: 'Linux'
-    ipAddress: {
-      type: 'Private'
-      ports: [
-        {
-          protocol: 'UDP'
-          port: 255
-        }
-      ]
-    }
-  }
-}
-
-
-
 // Storage Account Resource
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageName
@@ -89,7 +49,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     }
     tenantId: subscription().tenantId
     enableRbacAuthorization: true
-    accessPolicies: ['4633458b-17de-408a-b874-0445c86b69e6']
   }
 }
 
