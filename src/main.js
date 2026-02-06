@@ -165,6 +165,14 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
+// Handle Enter key for login
+pinInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    loginBtn.click();
+  }
+});
+
 // Load saved passwords from localStorage
 let savedPasswords = [];
 
