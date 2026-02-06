@@ -93,6 +93,20 @@ function closeDeleteModal() {
   }
 }
 
+// Analyze password strength from raw text (for manual input)
+function analyzeAndDisplayStrength(password) {
+  let charTypes = 0;
+  if (/[A-Z]/.test(password)) charTypes++;
+  if (/[a-z]/.test(password)) charTypes++;
+  if (/[0-9]/.test(password)) charTypes++;
+  if (/[^A-Za-z0-9]/.test(password)) charTypes++;
+
+  updateStrength(charTypes, password.length);
+
+  // update the character count number ot match what they typed
+  characterCount.textContent = password.length;
+}
+
 // Helper: The actual API Call (Separated so we can call it from two places)
 async function executeDelete(item) {
   // UI Feedback: Find the specific row to fade it out
@@ -219,7 +233,7 @@ characterSets.forEach(({ checkbox }) => {
 // Handle generate button
 generateButton.addEventListener('click', () => {
   const { password, charTypes, passwordLength } = generatePassword();
-  passwordInput.textContent = password;
+  passwordInput.value = password;
   passwordInput.classList.remove('placeholder');
   updateStrength(charTypes, passwordLength);
   toggleCopyButton();
@@ -229,7 +243,7 @@ generateButton.addEventListener('click', () => {
 // Handle copy button
 let copyTimeout;
 copyButton.addEventListener('click', () => {
-  const passwordToCopy = passwordInput.textContent;
+  const passwordToCopy = passwordInput.value;
 
   navigator.clipboard
     .writeText(passwordToCopy)
@@ -285,7 +299,6 @@ modalOverlay.addEventListener('click', (e) => {
 });
 
 // Handle save form submit
-// Handle save form submit
 saveForm.addEventListener('submit', async (e) => {
   // Changed to async
   e.preventDefault();
@@ -298,7 +311,7 @@ saveForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  const password = passwordInput.textContent;
+  const password = passwordInput.value;
 
   // UI Feedback: Change button text so user knows it's working
   const submitBtn = saveForm.querySelector('button[type="submit"]');
@@ -332,7 +345,7 @@ saveForm.addEventListener('submit', async (e) => {
     nameInput.value = '';
 
     // Reset the main generator display
-    passwordInput.textContent = DEFAULT_PLACEHOLDER;
+    passwordInput.value = '';
     passwordInput.classList.add('placeholder');
     toggleCopyButton();
     toggleSaveButton();
@@ -365,7 +378,7 @@ saveForm.addEventListener('submit', async (e) => {
 // Enable/disable Save button based on whether a real password is present
 function toggleSaveButton() {
   const isPlaceholder = passwordInput.classList.contains('placeholder');
-  const hasContent = passwordInput.textContent && !isPlaceholder;
+  const hasContent = passwordInput.value && !isPlaceholder;
   if (saveButton) saveButton.disabled = !hasContent;
 }
 
@@ -382,12 +395,28 @@ backButton.addEventListener('click', () => {
   generatorSection.classList.remove('hidden');
 });
 
+// Listen for manual input in the password field to analyze strength
+passwordInput.addEventListener('input', (e) => {
+  const currentPassword = e.target.value;
+
+  analyzeAndDisplayStrength(currentPassword);
+
+  toggleSaveButton();
+  toggleCopyButton();
+
+  if (currentPassword) {
+    passwordInput.classList.remove('placeholder');
+  } else {
+    passwordInput.classList.add('placeholder');
+  }
+});
+
 // Functions
 
 // Function to toggle the copy button state based on whether the password is empty
 function toggleCopyButton() {
   const isPlaceholder = passwordInput.classList.contains('placeholder');
-  const hasContent = passwordInput.textContent && !isPlaceholder;
+  const hasContent = passwordInput.value && !isPlaceholder;
   copyButton.disabled = !hasContent;
 }
 
@@ -533,7 +562,7 @@ async function renderSavedPasswords() {
         toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
       });
 
-      // 2. EDIT LOGIC (New!)
+      // 2. EDIT LOGIC
       const editBtn = li.querySelector('.edit-btn');
       editBtn.addEventListener('click', () => {
         // A. Switch to Generator View
@@ -541,7 +570,7 @@ async function renderSavedPasswords() {
         generatorSection.classList.remove('hidden');
 
         // B. Load Data into Generator
-        passwordInput.textContent = item.password;
+        passwordInput.value = item.password;
         passwordInput.classList.remove('placeholder');
 
         // C. Set "Edit Mode" State
