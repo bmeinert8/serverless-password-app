@@ -535,12 +535,18 @@ async function renderSavedPasswords() {
       const li = document.createElement('li');
       li.classList.add('saved-item');
 
+      // --- ADDED THE COPY BUTTON IN HTML TEMPLATE ---
       li.innerHTML = `
         <div class="saved-display">
-          <span class="saved-name text-preset-4">${item.name}</span>
-          <span class="saved-password text-preset-2" data-hidden="true">••••••••</span>
+          <div class="saved-info-block">
+            <span class="saved-name text-preset-4">${item.name}</span>
+            <span class="saved-password text-preset-2" data-hidden="true">••••••••</span>
+          </div>
           <div class="saved-controls">
              <button class="toggle-show-btn" title="Show/Hide">Show</button>
+             <button class="copy-saved-btn" title="Copy Password" style="background: transparent; border: none; cursor: pointer;">
+                📋
+             </button>
              <button class="edit-btn" title="Edit Password" style="margin-left: 0.5rem; background: transparent; border: none; cursor: pointer;">
                 ✏️
              </button>
@@ -562,27 +568,38 @@ async function renderSavedPasswords() {
         toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
       });
 
+      // --- NEW: 1.5 COPY TO CLIPBOARD LOGIC ---
+      const copySavedBtn = li.querySelector('.copy-saved-btn');
+      copySavedBtn.addEventListener('click', () => {
+        navigator.clipboard
+          .writeText(item.password)
+          .then(() => {
+            const originalText = copySavedBtn.textContent;
+            copySavedBtn.textContent = '✅'; // Quick visual feedback
+            setTimeout(() => {
+              copySavedBtn.textContent = originalText;
+            }, 1500);
+          })
+          .catch((err) => {
+            console.error('Failed to copy saved password: ', err);
+          });
+      });
+
       // 2. EDIT LOGIC
       const editBtn = li.querySelector('.edit-btn');
       editBtn.addEventListener('click', () => {
-        // A. Switch to Generator View
         savedSection.classList.add('hidden');
         generatorSection.classList.remove('hidden');
 
-        // B. Load Data into Generator
         passwordInput.value = item.password;
         passwordInput.classList.remove('placeholder');
 
-        // C. Set "Edit Mode" State
         editingTargetName = item.name;
 
-        // D. Visual Feedback: Update the Title or Button to show we are editing
         const title = document.querySelector('.title-text');
         title.textContent = `Editing: ${item.name}`;
         title.style.color = 'var(--Neon-Green)';
 
-        // E. Recalculate strength for the loaded password
-        // (Optional simplification: just set slider to length of loaded pw)
         characterSlider.value = item.password.length;
         characterCount.textContent = item.password.length;
         updateSliderFill(item.password.length);
