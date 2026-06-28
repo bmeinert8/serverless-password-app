@@ -3,12 +3,12 @@
   "name": "Password Generator & Storage",
   "icons": [
     {
-      "src": "images/icons8-password-book-48 (1).png",
+      "src": "./images/passgen-icon.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "images/icons8-password-book-48 (1).png",
+      "src": "./images/passgen-icon.png",
       "type": "image/png",
       "sizes": "512x512"
     }
