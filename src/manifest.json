@@ -1,0 +1,21 @@
+{
+  "short_name": "PassGen",
+  "name": "Password Generator & Storage",
+  "icons": [
+    {
+      "src": "images/icons8-password-book-48 (1).png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/icons8-password-book-48 (1).png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "display": "standalone",
+  "orientation": "portrait"
+}
