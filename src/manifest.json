@@ -3,14 +3,9 @@
   "name": "Password Generator & Storage",
   "icons": [
     {
-      "src": "./images/passgen-icon.png",
+      "src": "/images/passgen-icon.png",
       "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "./images/passgen-icon.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "180x180"
     }
   ],
   "start_url": "/",
