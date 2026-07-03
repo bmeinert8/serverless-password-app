@@ -1,5 +1,5 @@
 const { app } = require('@azure/functions');
-const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { getSecret } = require('../services/vaultService');
 
 app.http('login', {
@@ -8,38 +8,45 @@ app.http('login', {
     handler: async (request, context) => {
         try {
             const body = await request.json();
-            const userPin = body.pin;
+            const userPassword = body.password;
 
-            if (!userPin) {
-                return { status: 400, body: JSON.stringify({ error: "PIN is required" }) };
+            if (!userPassword) {
+                return { 
+                    status: 400, 
+                    body: JSON.stringify({ error: "Master Password is required" }) 
+                };
             }
 
-            const userHash = crypto.createHash('sha256').update(userPin).digest('hex');
-            const officialHash = await getSecret('MasterPINHash');
+            // UPDATED: Now points to the exact name you used in the Azure CLI!
+            const officialHash = await getSecret('MasterVaultSecret');
 
-            if (userHash === officialHash) {
+            if (!officialHash) {
+                context.error("Key Vault failed to return the Master Hash.");
+                return { 
+                        status: 500, 
+                        body: JSON.stringify({ error: "VAULT_CONFIGURATION_ERROR" }) 
+                };
+            }
+
+            const isAuthenticated = await bcrypt.compare(userPassword, officialHash);
+
+            if (isAuthenticated) {
                 return { 
                     status: 200, 
                     body: JSON.stringify({ authenticated: true }) 
                 };
             } else {
-                // DEBUGGING BLOCK: This tells us what the server is actually seeing
                 return { 
                     status: 401, 
                     body: JSON.stringify({ 
                         authenticated: false, 
-                        message: "Invalid PIN",
-                        debug_info: {
-                            user_sent_hash: userHash,
-                            server_stored_length: officialHash ? officialHash.length : 0,
-                            // Show first 10 chars to see if it's a Hash or the "@Microsoft" string
-                            server_stored_preview: officialHash ? officialHash.substring(0, 10) : "UNDEFINED"
-                        }
+                        message: "Invalid Master Password"
                     }) 
                 };
             }
 
         } catch (error) {
+            context.error("Login endpoint crash:", error);
             return { 
                 status: 500, 
                 body: JSON.stringify({ 

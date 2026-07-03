@@ -1,8 +1,23 @@
 const { app } = require('@azure/functions');
 const { TableClient } = require('@azure/data-tables');
+const crypto = require('crypto');
 
-// UPDATED: Using your custom environment variable name
 const connectionString = process.env.VaultStorageConnection;
+const encryptionKey = process.env.DATA_ENCRYPTION_KEY; // We'll add this next
+
+// Helper to encrypt secrets before sending to Azure Table Storage
+function encryptSecret(text, masterKeyHex) {
+  const iv = crypto.randomBytes(12);
+  const key = Buffer.from(masterKeyHex, 'hex');
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const authTag = cipher.getAuthTag().hexSlice();
+
+  // Return IV + AuthTag + Ciphertext packed together
+  return `${iv.toString('hex')}:${authTag}:${encrypted}`;
+}
 
 app.http('savePassword', {
   methods: ['POST'],
@@ -23,18 +38,24 @@ app.http('savePassword', {
         throw new Error('Storage Connection String is missing');
       }
 
-      // UPDATED: Using your custom table name "pwstoragetable"
+      if (!encryptionKey) {
+        throw new Error('Data Encryption Key is missing');
+      }
+
       const client = TableClient.fromConnectionString(
         connectionString,
         'pwstoragetable'
       );
+
+      // Encrypt the plaintext password using AES-256
+      const encryptedPassword = encryptSecret(password, encryptionKey);
 
       const newEntity = {
         partitionKey: 'User1',
         rowKey: website.toLowerCase().replace(/[^a-z0-9]/g, ''),
         originalWebsiteName: website,
         username: username || '',
-        password: password,
+        password: encryptedPassword, // Store the scrambled string, NOT the plain password
       };
 
       await client.upsertEntity(newEntity);

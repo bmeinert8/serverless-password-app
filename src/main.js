@@ -154,23 +154,24 @@ async function executeDelete(item) {
 
 // login button event
 loginBtn.addEventListener('click', async () => {
-  const pin = pinInput.value;
+  const password = pinInput.value; // Grabbing whatever they typed in the box
 
   try {
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin: pin }),
+      body: JSON.stringify({ password: password }), // Updated key to 'password'
     });
 
     const data = await response.json();
 
-    if (data.authenticated) {
+    if (data.authenticated || data.success) { // Added fallback depending on what your API returns
       // Success! Hide login, show the app
       loginSection.classList.add('hidden');
       generatorSection.classList.remove('hidden');
     } else {
       // Fail! Show error message
+      loginError.textContent = 'Invalid Master Password'; // Optional UI polish
       loginError.classList.remove('hidden');
     }
   } catch (err) {

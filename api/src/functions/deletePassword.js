@@ -31,10 +31,20 @@ app.http('deletePassword', {
       // (Lowercased and stripped of special characters)
       const rowKey = website.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-      console.log(`Deleting entity: User1 / ${rowKey}`);
-
-      // The delete command requires PartitionKey and RowKey
-      await client.deleteEntity('User1', rowKey);
+      // Try to delete the entity
+      try {
+          await client.deleteEntity('User1', rowKey);
+      } catch (deleteErr) {
+          // If the entity is already missing (404), treat it as a success!
+          if (deleteErr.statusCode === 404) {
+              return {
+                  status: 200,
+                  body: JSON.stringify({ message: `Password for ${website} was already deleted or not found.` }),
+              };
+          }
+          // If it's a different error (e.g., network failure), throw it to the main catch block
+          throw deleteErr;
+      }
 
       return {
         status: 200,
