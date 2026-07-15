@@ -29,7 +29,7 @@ jobs:
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: './src' # App source code path
-          api_location: '' # <-- CHANGED: Empty string so SWA ignores the API folder
+          api_location: '' # <-- Empty string so SWA ignores the API folder
           output_location: '.' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 
@@ -45,7 +45,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x' # <-- Bumped to 24 to match Azure Portal
 
       - name: Install API Dependencies
         shell: bash
