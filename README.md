@@ -9,7 +9,7 @@ A full-stack, enterprise-grade password manager built entirely on **Azure Server
 
 This project demonstrates a strict **Zero-Trust** security model, utilizing decoupled infrastructure, Managed Identities, and Azure Key Vault to ensure that the frontend and codebase never handle sensitive configuration secrets.
 
-## 🏗️ Enterprise Architecture (Bring Your Own Functions)
+## Enterprise Architecture (Bring Your Own Functions)
 
 This application utilizes a decoupled, Bring Your Own Functions (BYOF) architecture to bypass the security limitations of standard managed environments.
 
@@ -19,7 +19,7 @@ This application utilizes a decoupled, Bring Your Own Functions (BYOF) architect
 * **Security:** **Azure Key Vault** stores the Master Password hash and AES-256 encryption keys.
 * **Infrastructure:** Entire stack defined and provisioned via **Azure Bicep** (IaC).
 
-## 🔐 Security Design & Implementation
+## Security Design & Implementation
 
 ### 1. Zero-Trust Key Vault Integration
 Instead of storing secrets in easily compromised environment variables, this backend utilizes Key Vault References (`@Microsoft.KeyVault(...)`). The Function App securely resolves these references in memory at runtime, meaning the raw secrets never exist in the codebase or static portal configurations.
@@ -31,7 +31,7 @@ The backend Azure Function App connects to the Key Vault using a **System-Assign
 * **Authentication:** Master Passwords are computationally hashed using `bcrypt` (salted, with a high work factor) rather than fast, vulnerable algorithms like SHA-256.
 * **Data at Rest:** All saved passwords sent to Azure Table Storage are dynamically encrypted and decrypted in the cloud using **AES-256-GCM**, ensuring database administrators cannot read user secrets in plain text.
 
-## ⚙️ Technical Stack
+## Technical Stack
 
 | Component | Technology | Purpose |
 | :--- | :--- | :--- |
@@ -42,7 +42,7 @@ The backend Azure Function App connects to the Key Vault using a **System-Assign
 | **DevOps** | Azure Bicep | Infrastructure Provisioning |
 | **CI/CD** | GitHub Actions | Split Pipeline (SWA + Functions Deploy) |
 
-## 🚀 CI/CD Pipeline
+## CI/CD Pipeline
 
 The project utilizes a split deployment strategy via GitHub Actions:
 1. Pushes to `main` trigger the workflow.
