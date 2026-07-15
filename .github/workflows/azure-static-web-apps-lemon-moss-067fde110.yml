@@ -45,7 +45,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.x' # <-- Bumped to 24 to match Azure Portal
+          node-version: '20.x' # <-- stable 20.x version of Node.js
 
       - name: Install API Dependencies
         shell: bash
