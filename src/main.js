@@ -165,7 +165,8 @@ loginBtn.addEventListener('click', async () => {
 
     const data = await response.json();
 
-    if (data.authenticated || data.success) { // Added fallback depending on what your API returns
+    if (data.authenticated || data.success) {
+      // Added fallback depending on what your API returns
       // Success! Hide login, show the app
       loginSection.classList.add('hidden');
       generatorSection.classList.remove('hidden');
@@ -536,24 +537,21 @@ async function renderSavedPasswords() {
       const li = document.createElement('li');
       li.classList.add('saved-item');
 
-      // --- ADDED THE COPY BUTTON IN HTML TEMPLATE ---
       li.innerHTML = `
         <div class="saved-display">
           <div class="saved-info-block">
-            <span class="saved-name text-preset-4">${item.name}</span>
-            <span class="saved-password text-preset-2" data-hidden="true">••••••••</span>
+            <span class="saved-name text-preset-4" style="color: var(--Green);">${item.name}</span>
+            <div class="password-group">
+               <span class="saved-password text-preset-3" data-hidden="true" title="Click to copy">••••••••</span>
+               <button class="toggle-show-btn" title="Show/Hide Password" style="background: transparent; border: none; cursor: pointer; font-size: 1.2rem;">👁️</button>
+            </div>
           </div>
-          <div class="saved-controls">
-             <button class="toggle-show-btn" title="Show/Hide">Show</button>
-             <button class="copy-saved-btn" title="Copy Password" style="background: transparent; border: none; cursor: pointer;">
-                📋
-             </button>
-             <button class="edit-btn" title="Edit Password" style="margin-left: 0.5rem; background: transparent; border: none; cursor: pointer;">
-                ✏️
-             </button>
-             <button class="delete-btn" title="Delete Password" style="margin-left: 0.5rem; background: transparent; border: none; cursor: pointer;">
-               🗑️
-             </button>
+          <div class="saved-controls dropdown-container">
+             <button class="kebab-btn" title="Options">⋮</button>
+             <div class="dropdown-menu hidden">
+               <button class="dropdown-item edit-btn">✏️ Edit</button>
+               <button class="dropdown-item delete-btn">🗑️ Delete</button>
+             </div>
           </div>
         </div>
       `;
@@ -566,19 +564,22 @@ async function renderSavedPasswords() {
         const isHidden = pwSpan.dataset.hidden === 'true';
         pwSpan.textContent = isHidden ? item.password : '••••••••';
         pwSpan.dataset.hidden = isHidden ? 'false' : 'true';
-        toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
+        toggleBtn.textContent = isHidden ? '🙈' : '👁️';
       });
 
-      // --- NEW: 1.5 COPY TO CLIPBOARD LOGIC ---
-      const copySavedBtn = li.querySelector('.copy-saved-btn');
-      copySavedBtn.addEventListener('click', () => {
+      // 2. Click to Copy Logic (Replaces copy button)
+      pwSpan.addEventListener('click', () => {
         navigator.clipboard
           .writeText(item.password)
           .then(() => {
-            const originalText = copySavedBtn.textContent;
-            copySavedBtn.textContent = '✅'; // Quick visual feedback
+            pwSpan.textContent = 'Copied! ✅';
+            pwSpan.style.color = 'var(--Green)';
+
             setTimeout(() => {
-              copySavedBtn.textContent = originalText;
+              // Restore visibility state
+              const isHidden = pwSpan.dataset.hidden === 'true';
+              pwSpan.textContent = isHidden ? '••••••••' : item.password;
+              pwSpan.style.color = ''; // Reset to CSS default
             }, 1500);
           })
           .catch((err) => {
@@ -586,7 +587,29 @@ async function renderSavedPasswords() {
           });
       });
 
-      // 2. EDIT LOGIC
+      // 3. Dropdown Menu Logic
+      const kebabBtn = li.querySelector('.kebab-btn');
+      const dropdownMenu = li.querySelector('.dropdown-menu');
+
+      kebabBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent immediate closing
+
+        // Close all other open dropdowns in the list
+        document.querySelectorAll('.dropdown-menu').forEach((menu) => {
+          if (menu !== dropdownMenu) menu.classList.add('hidden');
+        });
+
+        dropdownMenu.classList.toggle('hidden');
+      });
+
+      // Close dropdown if clicking outside
+      document.addEventListener('click', (e) => {
+        if (!li.querySelector('.dropdown-container').contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+
+      // 4. Edit Logic
       const editBtn = li.querySelector('.edit-btn');
       editBtn.addEventListener('click', () => {
         savedSection.classList.add('hidden');
@@ -599,7 +622,7 @@ async function renderSavedPasswords() {
 
         const title = document.querySelector('.title-text');
         title.textContent = `Editing: ${item.name}`;
-        title.style.color = 'var(--Neon-Green)';
+        title.style.color = 'var(--Green)';
 
         characterSlider.value = item.password.length;
         characterCount.textContent = item.password.length;
@@ -608,7 +631,7 @@ async function renderSavedPasswords() {
         toggleSaveButton();
       });
 
-      // 3. Delete Logic (Existing)
+      // 5. Delete Logic
       const deleteBtn = li.querySelector('.delete-btn');
       deleteBtn.addEventListener('click', () => {
         const skipConfirm =

@@ -510,6 +510,19 @@ li {
   align-items: center;
 }
 
+.saved-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.password-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .saved-name {
   color: var(--Grey200);
   flex: 1;
@@ -517,21 +530,73 @@ li {
 
 .saved-password {
   color: var(--Grey200);
-  margin: 0 1rem;
-}
-
-.toggle-show-btn {
-  color: var(--Green);
+  margin: 0;
   cursor: pointer;
-  margin-right: 1rem;
+  padding: 0.5rem;
+  background-color: var(--Grey900);
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.copy-saved-btn {
+.saved-password:hover {
+  border-color: var(--Green);
+  background-color: var(--Grey950);
+}
+
+.dropdown-container {
+  position: relative;
+}
+
+.kebab-btn {
+  background: transparent;
+  border: none;
+  color: var(--Grey200);
+  font-size: 1.5rem;
   cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+  transition: color 0.2s;
 }
 
-.copy-saved-btn:hover {
+.kebab-btn:hover {
   color: var(--Green);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: var(--Grey900);
+  border: 1px solid var(--Grey700);
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  z-index: 10;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.dropdown-item {
+  background: transparent;
+  border: none;
+  color: var(--Grey200);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--Grey800);
+  color: var(--Green);
+}
+
+.dropdown-item.delete-btn:hover {
+  color: var(--Red);
 }
 
 /* --- Delete Modal Styles --- */
