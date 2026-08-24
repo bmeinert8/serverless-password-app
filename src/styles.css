@@ -515,17 +515,18 @@ li {
   flex-direction: column;
   gap: 0.5rem;
   flex: 1;
+  margin-right: 1rem;
 }
 
 .password-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: space-between;
 }
 
 .saved-name {
   color: var(--Grey200);
-  flex: 1;
 }
 
 .saved-password {
